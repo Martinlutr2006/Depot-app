@@ -9,6 +9,7 @@ const router = express.Router();
 router.post("/users", userController.signup);
 
 router.get("/users", userController.getAllUsers); // Potentially admin only
+router.post("/login", userController.login);   // Login endpoint
 router.get("/users/:userId", userController.getUserById); // Potentially admin or self
 router.put("/users/:userId", userController.updateUser); // Potentially admin or self
 router.delete("/users/:userId", userController.deleteUser); // Potentially admin only

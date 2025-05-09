@@ -25,6 +25,7 @@ app.get("/", (req, res) => {
 
 // API Routes
 app.use("/api", userRoutes);
+
 app.use("/api", productRoutes);
 app.use("/api", stockRoutes);
 

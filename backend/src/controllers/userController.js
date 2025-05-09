@@ -1,8 +1,8 @@
 // controllers/userController.js
-const db = require("../config/db"); // Assuming your db connection setup is here
+const db = require("../config/db"); // Assuming your db connection setup is here (e.g., MySQL connection pool)
 const bcrypt = require("bcrypt");
 
-// User Signup (Create) - Based on your example
+// --- User Signup (Create) ---
 exports.signup = (req, res) => {
   const { username, password, userType } = req.body;
 
@@ -83,7 +83,57 @@ exports.signup = (req, res) => {
   );
 };
 
-// Get all users (Read)
+// --- User Login ---
+exports.login = (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Username and password are required.' });
+    }
+
+    // 1. Find the user by username
+    db.query('SELECT userId, userName, passWord, userType FROM Users WHERE userName = ?', [username], (err, results) => {
+        if (err) {
+            console.error("Database error during login (fetching user):", err);
+            return res.status(500).json({ message: "Something went wrong on the server.", error: err.message });
+        }
+
+        if (results.length === 0) {
+            // User not found
+            return res.status(401).json({ message: 'Invalid username or password.' });
+        }
+
+        const user = results[0]; // Found the user
+
+        // 2. Compare provided password with hashed password from DB
+        bcrypt.compare(password, user.passWord)
+            .then(isMatch => {
+                if (!isMatch) {
+                    // Passwords do not match
+                    return res.status(401).json({ message: 'Invalid username or password.' });
+                }
+
+                // 3. Login successful!
+                // In a real application, you would typically generate a JWT (JSON Web Token) here
+                // and send it back to the client for subsequent authenticated requests.
+                // For now, we'll just send a success message and basic user info.
+                return res.status(200).json({
+                    message: 'Login successful!',
+                    user: {
+                        userId: user.userId,
+                        username: user.userName,
+                        userType: user.userType
+                    }
+                });
+            })
+            .catch(compareErr => {
+                console.error("Error comparing passwords:", compareErr);
+                return res.status(500).json({ message: "Failed to process login.", error: compareErr.message });
+            });
+    });
+};
+
+// --- Get all users (Read) ---
 exports.getAllUsers = (req, res) => {
   db.query("SELECT userId, userName, userType FROM Users", (err, results) => {
     if (err) {
@@ -96,7 +146,7 @@ exports.getAllUsers = (req, res) => {
   });
 };
 
-// Get user by ID (Read)
+// --- Get user by ID (Read) ---
 exports.getUserById = (req, res) => {
   const { userId } = req.params;
   db.query(
@@ -117,7 +167,7 @@ exports.getUserById = (req, res) => {
   );
 };
 
-// Update user (Update) - e.g., change password or userType
+// --- Update user (Update) - e.g., change password or userType ---
 exports.updateUser = (req, res) => {
   const { userId } = req.params;
   const { password, userType } = req.body;
@@ -132,6 +182,8 @@ exports.updateUser = (req, res) => {
   const queryParams = [];
 
   if (password) {
+    // Note: bcrypt.hashSync is used here. bcrypt.hash (async) is preferred.
+    // If you prefer async, use async/await and handle it within a try/catch or .then().
     const hashedPassword = bcrypt.hashSync(password, 10);
     query += "passWord = ?";
     queryParams.push(hashedPassword);
@@ -165,7 +217,7 @@ exports.updateUser = (req, res) => {
   });
 };
 
-// Delete user (Delete)
+// --- Delete user (Delete) ---
 exports.deleteUser = (req, res) => {
   const { userId } = req.params;
   db.query("DELETE FROM Users WHERE userId = ?", [userId], (err, result) => {
