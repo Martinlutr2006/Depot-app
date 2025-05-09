@@ -1,14 +1,15 @@
-// app.js
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
-require("./config/db"); // This should ideally export the db object or ensure it's globally available if not passed.
+// Placeholder for DB connection (not implemented in this example)
+// In a real app, this would establish your database connection.
+// require("./config/db");
 
 // Import Routers
-const userRoutes = require("./routes/userRoutes"); // Renamed from authRoutes for clarity
-const productRoutes = require("./routes/productRoutes");
-const stockRoutes = require("./routes/stockRoutes");
+const userRoutes = require("./routes/userRoutes");
+const productRoutes = require("./routes/productRoutes"); // Dummy
+const stockRoutes = require("./routes/stockRoutes");     // Dummy
 
 const app = express();
 
@@ -23,16 +24,15 @@ app.get("/", (req, res) => {
 });
 
 // API Routes
-app.use("/api", userRoutes); // All user-related routes will be prefixed with /api
-app.use("/api", productRoutes); // All product-related routes will be prefixed with /api
-app.use("/api", stockRoutes); // All stock-related routes will be prefixed with /api
+app.use("/api", userRoutes);
+app.use("/api", productRoutes);
+app.use("/api", stockRoutes);
 
-// Basic Error Handling Middleware (optional, can be more sophisticated)
+// Basic Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send({ message: 'Something broke!', error: err.message });
+  res.status(500).send({ message: 'Something broke on the server!', error: err.message });
 });
-
 
 // Start the server
 const PORT = process.env.PORT || 3004;
