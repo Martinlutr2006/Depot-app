@@ -1,0 +1,1 @@
+export const homeImage ="https://img.freepik.com/free-vector/digital-media-concept_1284-3468.jpg"

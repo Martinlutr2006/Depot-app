@@ -1,8 +1,9 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: light --default, dark --prefersdark, wireframe;
+  themes: light --default, dark --prefersdark, nord;
 }
 
-body {
-  @apply bg-base-200
+
+body{
+  @apply bg-base-300
 }
